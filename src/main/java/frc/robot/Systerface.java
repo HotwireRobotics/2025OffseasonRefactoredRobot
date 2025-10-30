@@ -1,5 +1,7 @@
 package frc.robot;
 
+import java.util.Optional;
+
 /** 
 <p>
 <strong>Example Code for Systerface</strong>
@@ -9,13 +11,10 @@ package frc.robot;
 <br>
 */
 public interface Systerface {
-	// This method should change 
-	// your subsystem's state.
-	default void   setCurrentState() {} //! Not required
 	// This method should return
 	// your subsystem's state.
-	default Object getCurrentState() {
-		return null;
+	default Optional<Object> getCurrentState() {
+		return Optional.empty();
 	}
 }
 
