@@ -55,10 +55,12 @@ public class Robot extends LoggedRobot {
     private Command m_autonomousCommand;
     public boolean utilizeLimelight = true;
 
+    // Create field models.
     Field2d llestamation = new Field2d();
     Field2d robotPose = new Field2d();
     Field2d nearestPoseField = new Field2d();
 
+    // Create robotContainer.
     private final RobotContainer robotContainer;
 
     public Robot() {
@@ -93,7 +95,7 @@ public class Robot extends LoggedRobot {
 
     @Override
     public void robotInit() {
-      PathfindingCommand.warmupCommand().schedule();
+        PathfindingCommand.warmupCommand().schedule();
     }
 
     
@@ -104,9 +106,10 @@ public class Robot extends LoggedRobot {
 
         SmartDashboard.putNumber("Nearest ID", robotContainer.drivetrain.nearestId);
 
+        // TODO Re-implement post-refactor.
         // for (Intake.Range range : Intake.Range.values()) {
-        //   Boolean measurement = robotContainer.intake.getMeasurement(range);
-        //   SmartDashboard.putBoolean(range.toString() + " CANrange", measurement);
+          //   Boolean measurement = robotContainer.intake.getMeasurement(range);
+          //   SmartDashboard.putBoolean(range.toString() + " CANrange", measurement);
         // }
 
         robotPose.setRobotPose(robotContainer.drivetrain.getState().Pose);
@@ -122,117 +125,131 @@ public class Robot extends LoggedRobot {
             PoseEstimate limelightMeasurement;
 
             /*
-             * `limelight-one` is back.
-             * `limelight-two` is front.
-             */
+                `limelight-one` is back.
+                `limelight-two` is front.
+            */
             boolean detectedFlag = false;
             for (String limelight : Constants.LIMELIGHT_NAMES) {
 
-              driveState = robotContainer.drivetrain.getState();
-              headingDeg = driveState.Pose.getRotation().getDegrees();
-              omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
-              /**
-               * Pipeline 0 is for the red side,
-               * Pipeline 1 is for the blue side.
-               */
-              // LimelightHelpers.setPipelineIndex(limelight, 
-                // (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? 0 : 1
-                // ? (m_robotContainer.drivetrain.getState().Pose.getY() < 4.02 ? 0 : 2) : 
-                //   (m_robotContainer.drivetrain.getState().Pose.getY() < 4.02 ? 1 : 3)
-              // );
-              LimelightHelpers.setPipelineIndex(limelight, 0);
-              LimelightHelpers.SetRobotOrientation(limelight, headingDeg, 0, 0, 0, 0, 0);
-              limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight);
+                driveState = robotContainer.drivetrain.getState();
+                headingDeg = driveState.Pose.getRotation().getDegrees();
+                omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+                /*
+                    Pipeline 0 is for the red side,
+                    Pipeline 1 is for the blue side.
+                */
+                // LimelightHelpers.setPipelineIndex(limelight, 
+                    // (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? 0 : 1
+                    // ? (m_robotContainer.drivetrain.getState().Pose.getY() < 4.02 ? 0 : 2) : 
+                    //   (m_robotContainer.drivetrain.getState().Pose.getY() < 4.02 ? 1 : 3)
+                // );
+                LimelightHelpers.setPipelineIndex(limelight, 0);
+                LimelightHelpers.SetRobotOrientation(limelight, headingDeg, 0, 0, 0, 0, 0);
+                limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight);
 
-              if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2) && (limelightMeasurement.avgTagDist < 2.75)) {
-                  measurements.add(limelightMeasurement);
-                  SmartDashboard.putBoolean(limelight + " detecting", true);
-                  detectedFlag = true;
-                  robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
-                    limelightMeasurement.timestampSeconds);
-                  llestamation.setRobotPose(limelightMeasurement.pose);
-              } else {
-                  SmartDashboard.putBoolean(limelight + " detecting", false);
-              }
+                // If the measurement is proper, record the measurement.
+                if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2) && (limelightMeasurement.avgTagDist < 2.75)) {
+                    measurements.add(limelightMeasurement);
+                    SmartDashboard.putBoolean(limelight + " detecting", true);
+                    // Enable flag.
+                    detectedFlag = true;
+                    robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
+                      limelightMeasurement.timestampSeconds);
+                    llestamation.setRobotPose(limelightMeasurement.pose);
+                } else {
+                    // Disable flag.
+                    SmartDashboard.putBoolean(limelight + " detecting", false);
+                }
             }
+
+            // Detected logic.
             if (detectedFlag) {
-              detectedFlag = false;
-              for (String limelightName : Constants.LIMELIGHT_NAMES) {
-                LimelightHelpers.setLEDMode_ForceOn(limelightName);
-              }
+                detectedFlag = false;
+                for (String limelightName : Constants.LIMELIGHT_NAMES) {
+                    LimelightHelpers.setLEDMode_ForceOn(limelightName);
+                }
             } else {
-              for (String limelightName : Constants.LIMELIGHT_NAMES) {
-                LimelightHelpers.setLEDMode_ForceOff(limelightName);
-              }
+                for (String limelightName : Constants.LIMELIGHT_NAMES) {
+                    LimelightHelpers.setLEDMode_ForceOff(limelightName);
+                }
             }
-      }
+        }
 
-      if (robotContainer.drivetrain.nearestPose != null) {
-        nearestPoseField.setRobotPose(robotContainer.drivetrain.nearestPose);
-      }
+        if (robotContainer.drivetrain.nearestPose != null) {
+            nearestPoseField.setRobotPose(robotContainer.drivetrain.nearestPose);
+        }
     }
 
     @Override
     public void disabledInit() {
+
     }
 
     @Override
     public void disabledPeriodic() {
+
     }
 
     @Override
     public void disabledExit() {
+
     }
 
     @Override
     public void autonomousInit() {
-      robotContainer.superstructure.targetState = Superstructure.TargetState.AUTONOMOUS;
-      m_autonomousCommand = robotContainer.getAutonomousCommand();
+        robotContainer.superstructure.targetState = Superstructure.TargetState.AUTONOMOUS;
+        m_autonomousCommand = robotContainer.getAutonomousCommand();
 
-      if (m_autonomousCommand != null) {
-        m_autonomousCommand.schedule();
-      }
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.schedule();
+        }
     }
 
     @Override
     public void autonomousPeriodic() {
+
     }
 
     @Override
     public void autonomousExit() {
+
     }
 
     @Override
     public void teleopInit() {
-      robotContainer.superstructure.targetState = Superstructure.TargetState.DEFAULT;
-      if (m_autonomousCommand != null) {
-        m_autonomousCommand.cancel();
-      }
+        robotContainer.superstructure.targetState = Superstructure.TargetState.DEFAULT;
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.cancel();
+        }
     }
 
     @Override
     public void teleopPeriodic() {
-      
+
     }
 
     @Override
     public void teleopExit() {
+
     }
 
     @Override
     public void testInit() {
-      CommandScheduler.getInstance().cancelAll();
+        CommandScheduler.getInstance().cancelAll();
     }
 
     @Override
     public void testPeriodic() {
+
     }
 
     @Override
     public void testExit() {
+
     }
 
     @Override
     public void simulationPeriodic() {
+
     }
 }
