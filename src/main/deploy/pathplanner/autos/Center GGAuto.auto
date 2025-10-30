@@ -1,0 +1,79 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ExitStart"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.15
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center Girlsgen Auto"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "GoToL3"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.4
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center Back Up"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ToAlgaeL2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "GG Remove Algae"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.6
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center Back Up 2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ToDefault"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
