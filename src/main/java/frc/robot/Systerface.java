@@ -11,11 +11,11 @@ package frc.robot;
 public interface Systerface {
 	// This method should change 
 	// your subsystem's state.
-	default void   setCurrentState() {}; //! Not required
+	default void   setCurrentState() {} //! Not required
 	// This method should return
 	// your subsystem's state.
 	default Object getCurrentState() {
 		return null;
-	};
+	}
 }
 
