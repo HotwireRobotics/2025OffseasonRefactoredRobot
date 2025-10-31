@@ -89,7 +89,7 @@ public class Robot extends LoggedRobot {
             "_sim")));
         }
 
-        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA); //TODO Upload BuildConstants?
         Logger.start();
     }
 
