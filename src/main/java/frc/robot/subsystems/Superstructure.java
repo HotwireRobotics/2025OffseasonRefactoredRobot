@@ -401,7 +401,7 @@ public class Superstructure extends SubsystemBase {
 			case REMOVING_ALGAE_L3:
 				intake.targetState = Intake.TargetState.TAKE_ALGAE_L3;
 						
-				if (intake.getMeasurement(Intake.Range.FRONT)) {
+				if (intake.getIsDetected(Intake.Range.FRONT)) {
 					arm.targetState = Arm.TargetState.DEFAULT;
 				} else if (
 					arm.isArmAtPosition(Constants.ArmPositions.TAKE_ALGAE_L3, Rotations.of(0.015)) &&

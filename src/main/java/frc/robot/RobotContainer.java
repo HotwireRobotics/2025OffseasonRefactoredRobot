@@ -191,7 +191,7 @@ public class RobotContainer {
             @Override
             public void execute() {
                 intake.setLeftIntake(
-                    intake.getMeasurement(Range.LEFT) && intake.getMeasurement(Range.RIGHT) ?
+                    intake.getIsDetected(Range.LEFT) && intake.getIsDetected(Range.RIGHT) ?
                     - Constants.IntakeSpeeds.MAX :
                       Constants.IntakeSpeeds.MAX
                 );
@@ -218,7 +218,7 @@ public class RobotContainer {
              */
             @Override
             public boolean isFinished() {
-                return intake.getMeasurement(Range.STOP) && intake.getMeasurement(Range.FRONT);
+                return intake.getIsDetected(Range.STOP) && intake.getIsDetected(Range.FRONT);
             }
         }
 
@@ -338,7 +338,7 @@ public class RobotContainer {
              */
             @Override
             public boolean isFinished() {
-                return !(intake.getMeasurement(Range.STOP) && intake.getMeasurement(Range.FRONT));
+                return !(intake.getIsDetected(Range.STOP) && intake.getIsDetected(Range.FRONT));
             }
         }
 
@@ -355,7 +355,7 @@ public class RobotContainer {
             intake.setRightIntake(1);
             intake.setRollers(1);
         }).until(() -> {
-            return (intake.getMeasurement(Range.STOP) || intake.getMeasurement(Range.FRONT));
+            return (intake.getIsDetected(Range.STOP) || intake.getIsDetected(Range.FRONT));
         });
 
         Command voltageExitStart = new InstantCommand(() -> arm.setWristMotorPosition(Constants.WristPositions.LVL2.magnitude()), arm)

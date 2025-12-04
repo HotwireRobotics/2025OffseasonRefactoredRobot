@@ -100,10 +100,10 @@ public class Intake extends SubsystemBase {
 	}
 
 	public void periodic() {
-		left =  getIsDetected(Range.LEFT);
-		right = getIsDetected(Range.RIGHT);
-		stop =  getIsDetected(Range.STOP);
-		front = getIsDetected(Range.FRONT);
+		left =  getMeasurement(Range.LEFT);
+		right = getMeasurement(Range.RIGHT);
+		stop =  getMeasurement(Range.STOP);
+		front = getMeasurement(Range.FRONT);
 
 		handleStateTransitions(); applyStates();
 
@@ -114,13 +114,138 @@ public class Intake extends SubsystemBase {
 		}
 	}
 
+	private void handleStateTransitions() {
+		switch (targetState) {
+			case STOPPED:
+				currentState = SystemState.STOPPED;
+				break;
+			case AUTO:
+				currentState = SystemState.AUTO;
+				break;
+			case COLLECT:
+				currentState = SystemState.INTAKING_CORAL;
+
+				if (stop) {
+					currentState = SystemState.HOLDING_CORAL;
+				} else if (left && right) {
+					currentState = SystemState.INDEXING_CORAL;
+				} else {
+					currentState = SystemState.INTAKING_CORAL;
+				}
+				break;
+			case DEFAULT:
+				if (front && stop) {
+					currentState = SystemState.HOLDING_CORAL;
+					break;
+				}
+				if (stop) {
+					currentState = SystemState.INDEX_FORWARD;
+					break;
+				}
+				if (front) {
+					currentState = SystemState.INDEX_BACKWARD;
+					break;
+				}
+				currentState = SystemState.NO_CORAL;
+				break;
+			case EJECT_FORWARD:
+				if (front || stop) {
+					currentState = SystemState.EJECTING_FORWARD; 
+				} else {
+					currentState = SystemState.NO_CORAL;
+				}
+				break;
+			case EJECT_BACKWARD:
+				if (front || stop) {
+					currentState = SystemState.EJECTING_BACKWARD; 
+				} else {
+					currentState = SystemState.NO_CORAL;
+				}
+				break;
+			case TAKE_ALGAE_L2:
+				currentState = SystemState.TAKING_ALGAE_L2;
+				break;
+			case TAKE_ALGAE_L3:
+				currentState = SystemState.TAKING_ALGAE_L3;
+				break;
+			default:
+				currentState = SystemState.STOPPED;
+				break;
+		}
+	}
+
+	private void applyStates() {
+
+		switch (currentState) {
+			case AUTO:
+			case STOPPED:
+				break;
+			case INTAKING_CORAL:
+				setLeftIntake(Constants.IntakeSpeeds.MAX);
+				setRightIntake(Constants.IntakeSpeeds.MAX);
+				setRollers(0.4);
+
+				break;
+			case INDEXING_CORAL:
+				setLeftIntake(Constants.IntakeSpeeds.MAX);
+				setRightIntake(-Constants.IntakeSpeeds.MAX);
+				setRollers(0.4);
+
+				break;
+			case HOLDING_CORAL: case NO_CORAL:
+				setLeftIntake(0);
+				setRightIntake(0);
+				setRollers(0);
+
+				break;
+			case INDEX_FORWARD:
+				setLeftIntake(-Constants.IntakeSpeeds.INDEX);
+				setRightIntake(-Constants.IntakeSpeeds.INDEX);
+				setRollers(0);
+
+				break;
+			case INDEX_BACKWARD:
+				setLeftIntake(Constants.IntakeSpeeds.INDEX);
+				setRightIntake(Constants.IntakeSpeeds.INDEX);
+				setRollers(0);
+
+				break;
+			case EJECTING_BACKWARD:
+				setLeftIntake(Constants.IntakeSpeeds.MAX);
+				setRightIntake(Constants.IntakeSpeeds.MAX);
+				setRollers(0);
+
+				break;
+			case EJECTING_FORWARD:
+				setLeftIntake(-Constants.IntakeSpeeds.MAX);
+				setRightIntake(-Constants.IntakeSpeeds.MAX);
+				setRollers(0);
+
+				break;
+			case TAKING_ALGAE_L2:
+				setLeftIntake(-Constants.IntakeSpeeds.MAX);
+				setRightIntake(-Constants.IntakeSpeeds.MAX);
+				setRollers(-0.45);
+
+				break;
+			case TAKING_ALGAE_L3:
+				setLeftIntake(Constants.IntakeSpeeds.ALGAE);
+				setRightIntake(Constants.IntakeSpeeds.ALGAE);
+				setRollers(0.3);
+
+				break;
+			default:
+				break;
+		}
+	}
+
 	/**
      * Get the meaurement from one of the CANranges.
      *
      * @param range 
 	 * Get from the <code>Range</code> enum.
      */
-	public Boolean getIsDetected(Range range) {
+	public Boolean getMeasurement(Range range) {
 		CANrange range_obj;
 		switch (range) {
 			case RIGHT: range_obj = r_right; break;
@@ -154,10 +279,6 @@ public class Intake extends SubsystemBase {
 		d_rollers.set(speed);
 	}
 
-	public void stopRollers() {
-		d_rollers.set(0.0);
-	}
-
 	/**
      * Takes a factor from <strong>-1 to 1</strong> and runs 
 	 * the right intake at the appropriate speed.
@@ -168,12 +289,6 @@ public class Intake extends SubsystemBase {
 		d_right_intake.set(speed);
 	}
 
-	public void getCam()
-	
-	public void stoprRightIntake() {
-		d_right_intake.set(0.0);
-	}
-
 	/**
      * Takes a factor from <strong>-1 to 1</strong> and runs 
 	 * the left intake at the appropriate speed.
@@ -182,10 +297,5 @@ public class Intake extends SubsystemBase {
      */
 	public void setLeftIntake(double speed) {
 		d_left_intake.set(speed);
-	}
-
-	
-	public void stopLeftIntake() {
-		d_left_intake.set(0.0);
 	}
 }
